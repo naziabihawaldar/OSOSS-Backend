@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Webpatser\Uuid\Uuid;
 
-class CompanyController extends Controller
+class UserController extends Controller
 {
     public function index(Request $request)
     {
         try
         {
-            $companies = Company::with('users')->get();
-            return ['status' => 1, 'message' => 'success' ,'data' => $companies];
+            $users = User::with('companies')->get();
+            return ['status' => 1, 'message' => 'success' ,'data' => $users];
         }catch (\Exception $e)
         {
             logger($e);
@@ -25,16 +24,16 @@ class CompanyController extends Controller
     {
         $this->validate($request,[
             'name'=>'required',
-            'address'=>'required'
+            'email'=>'required'
         ]);
         try
         {
-            $company = new Company;
-            $company->id = (string)Uuid::generate(4);
-            $company->name = $request->name;
-            $company->address = $request->address;
-            $company->save();
-            return ['status' => 1,'message' => 'success','data' => $company];
+            $user = new User;
+            $user->id = (string)Uuid::generate(4);
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->save();
+            return ['status' => 1,'message' => 'success','data' => $user];
         }catch (\Exception $e)
         {
             logger($e);
@@ -52,15 +51,15 @@ class CompanyController extends Controller
         ]);
         try
         {
-            $company = Company::find($request->id);
-            if($company)
+            $user = User::find($request->id);
+            if($user)
             {
-                $company->name = $request->name;
-                $company->address = $request->address;
-                $company->save();
-                return ['status' => 1, 'message' => 'success' ,'data' => $company];
+                $user->name = $request->name;
+                $user->address = $request->address;
+                $user->save();
+                return ['status' => 1, 'message' => 'success' ,'data' => $user];
             }
-            return ['status' => 0,'message' => 'Company not found'];
+            return ['status' => 0,'message' => 'user not found'];
         }catch (\Exception $e)
         {
             logger($e);
@@ -74,13 +73,13 @@ class CompanyController extends Controller
             'id'=>'required'
         ]);
         try {
-            $company = Company::find($request->id);
-            if($company)
+            $user = User::find($request->id);
+            if($user)
             {
-                $company->delete();
+                $user->delete();
                 return ['status' => 1, 'message' => 'success'];
             }
-            return ['status' => 0,'message' => 'company not found'];
+            return ['status' => 0,'message' => 'user not found'];
         }catch (\Exception $e)
         {
             logger($e);
