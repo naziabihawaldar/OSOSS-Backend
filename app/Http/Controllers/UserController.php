@@ -12,7 +12,8 @@ class UserController extends Controller
     {
         try
         {
-            $users = User::with('companies')->paginate($request->rowsPerPage);
+            $users = User::where('id','!=',Auth::user()->id)->with('companies')->paginate
+            ($request->rowsPerPage);
             return ['status' => 1, 'message' => 'success' ,'data' => $users];
         }catch (\Exception $e)
         {
