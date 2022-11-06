@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Webpatser\Uuid\Uuid;
 
 class UserController extends Controller
 {
@@ -11,7 +12,7 @@ class UserController extends Controller
     {
         try
         {
-            $users = User::with('companies')->get();
+            $users = User::with('companies')->paginate($request->rowsPerPage);
             return ['status' => 1, 'message' => 'success' ,'data' => $users];
         }catch (\Exception $e)
         {
@@ -32,6 +33,7 @@ class UserController extends Controller
             $user->id = (string)Uuid::generate(4);
             $user->name = $request->name;
             $user->email = $request->email;
+            $user->password =bcrypt('123456');
             $user->save();
             return ['status' => 1,'message' => 'success','data' => $user];
         }catch (\Exception $e)
@@ -42,12 +44,11 @@ class UserController extends Controller
 
     }
 
-    public function edit(Request $request)
+    public function update(Request $request)
     {
         $this->validate($request,[
             'id'=>'required',
             'name'=>'required',
-            'address'=>'required'
         ]);
         try
         {
@@ -55,7 +56,7 @@ class UserController extends Controller
             if($user)
             {
                 $user->name = $request->name;
-                $user->address = $request->address;
+                $user->email = $request->email;
                 $user->save();
                 return ['status' => 1, 'message' => 'success' ,'data' => $user];
             }
@@ -65,6 +66,24 @@ class UserController extends Controller
             logger($e);
             return ['status' => 0,'message' => 'Error Occurred'];
         }
+    }
+
+    public function show($id)
+    {
+        try
+        {
+            $user = User::find($id);
+            if($user)
+            {
+                return ['status' =>1,'message' =>'success','data' => $user];
+            }
+            return ['status' => 0, 'message' => 'No User Found'];
+        }catch (\Exception $e)
+        {
+            logger($e);
+            return ['status' => 0,'message' => 'error occurred' ];
+        }
+
     }
 
     public function delete(Request $request)

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
+use App\Company;
+
+use App\Models\User;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 
@@ -12,7 +14,7 @@ class CompanyController extends Controller
     {
         try
         {
-            $companies = Company::with('users')->get();
+           $companies = Company::with('users')->paginate($request->rowsPerPage);
             return ['status' => 1, 'message' => 'success' ,'data' => $companies];
         }catch (\Exception $e)
         {
@@ -43,7 +45,7 @@ class CompanyController extends Controller
 
     }
 
-    public function edit(Request $request)
+    public function update(Request $request)
     {
         $this->validate($request,[
             'id'=>'required',
@@ -85,6 +87,57 @@ class CompanyController extends Controller
         {
             logger($e);
             return ['status' => 0 ,'message' => 'Error Occurred'];
+        }
+    }
+    public function show($id)
+    {
+        try
+        {
+            $company = Company::find($id);
+            if($company)
+            {
+                return ['status' =>1,'message' =>'success','data' => $company];
+            }
+            return ['status' => 0, 'message' => 'No User Found'];
+        }catch (\Exception $e)
+        {
+            logger($e);
+            return ['status' => 0,'message' => 'error occurred' ];
+        }
+
+    }
+
+    public function getAllUsers()
+    {
+
+        try
+        {
+            $users = User::get();
+            return ['status' => 1,'message' => 'success','data' => $users];
+        }catch (\Exception $e){
+            logger($e);
+            return ['status' => 0,'message' => 'error occurred'];
+        }
+    }
+
+    public function updateUsersToCompany(Request $request)
+    {
+        $this->validate($request,[
+            'company_id'=>'required',
+            'users'=>'required',
+        ]);
+        try
+        {
+             $company = Company::find($request->company_id);
+             if(!$company)
+             {
+                 return ['status' => 0,'message' => 'Company not found'];
+             }
+             $company->users()->sync($request->users);
+            return ['status' => 1,'message' => 'success','data' => $company];
+        }catch (\Exception $e){
+            logger($e);
+            return ['status' => 0,'message' => 'error occurred'];
         }
     }
 }

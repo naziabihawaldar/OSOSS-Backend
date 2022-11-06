@@ -14,20 +14,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+/*Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
-});
+});*/
+Route::post('login','LoginController@login');
 
 Route::group(['middleware'=>'auth:api'],function(){
     //User API
     Route::get('users','UserController@index');
-    Route::post('user/{id}/delete','UserController@delete');
-    Route::get('user/{id}/edit','UserController@edit');
+    Route::post('delete-user','UserController@delete');
+    Route::post('user/{id}/edit','UserController@update');
+    Route::get('user/{id}','UserController@show');
     Route::post('user','UserController@store');
 
     //Company API
     Route::get('companies','CompanyController@index');
-    Route::post('company/{id}/delete','CompanyController@delete');
-    Route::get('company/{id}/edit','CompanyController@edit');
+    Route::post('delete-company','CompanyController@delete');
+    Route::post('company/{id}/edit','CompanyController@update');
     Route::post('company','CompanyController@store');
+    Route::get('company/{id}','CompanyController@show');
+    Route::get('get-users','CompanyController@getAllUsers');
+    Route::post('update-company-users','CompanyController@updateUsersToCompany');
+
+
 });
